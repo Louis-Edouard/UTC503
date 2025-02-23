@@ -1,0 +1,43 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class GestionAcces {
+
+    private static final String DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
+    private static final String DATABASE_NAME = "tp";
+    private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/" + DATABASE_NAME;
+    private static final String USERNAME = "root";
+    private static final String PASSWORD = "";
+
+    public static void main(String[] args) {
+        try (Connection connection = etablirConnexion()) {
+            // Utilisation de PreparedStatement pour éviter les injections SQL
+            String insertQuery = "INSERT INTO Acces (id, nom, login, nationalite, statut, age) VALUES (?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+                // Configuration des paramètres
+                preparedStatement.setInt(1, 5);
+                preparedStatement.setString(2, "Tom");
+                preparedStatement.setString(3, "tomahawk");
+                preparedStatement.setString(4, "indien");
+                preparedStatement.setString(5, "Etudiant");
+                preparedStatement.setInt(6, 22);
+
+                int lignesAffectees = preparedStatement.executeUpdate();
+                System.out.println(lignesAffectees + " ligne(s) insérée(s) avec succès.");
+            }
+        } catch (ClassNotFoundException e) {
+            System.err.println("Erreur de chargement du driver : " + e.getMessage());
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Erreur SQL : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static Connection etablirConnexion() throws ClassNotFoundException, SQLException {
+        Class.forName(DRIVER_CLASS);
+        return DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+    }
+}
