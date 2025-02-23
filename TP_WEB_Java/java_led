@@ -1,0 +1,154 @@
+import java.util.ArrayList;
+import java.util.List;
+
+// Generic loan manager class
+class GestionnaireDePrets<T> {
+    private ArrayList<T> prets;
+    
+    public GestionnaireDePrets() {
+        this.prets = new ArrayList<>();
+    }
+    
+    public void ajouterPret(T pret) {
+        prets.add(pret);
+    }
+    
+    public T retirerPret() {
+        if (prets.isEmpty()) {
+            return null;
+        }
+        return prets.remove(0);
+    }
+    
+    public List<T> listerPrets() {
+        return new ArrayList<>(prets);
+    }
+    
+    public int compterPrets() {
+        return prets.size();
+    }
+}
+
+// Abstract base loan class
+abstract class Pret {
+    protected String id;
+    protected double montant;
+    protected double tauxInteret;
+    
+    public Pret(String id, double montant, double tauxInteret) {
+        this.id = id;
+        this.montant = montant;
+        this.tauxInteret = tauxInteret;
+    }
+    
+    public abstract double calculerInteret();
+    
+    @Override
+    public String toString() {
+        return String.format("id='%s', montant=%.1f, tauxInteret=%.2f", 
+            id, montant, tauxInteret);
+    }
+}
+
+// Mortgage loan class
+class PretImmobilier extends Pret {
+    private int duree;
+    
+    public PretImmobilier(String id, double montant, double tauxInteret, int duree) {
+        super(id, montant, tauxInteret);
+        this.duree = duree;
+    }
+    
+    @Override
+    public double calculerInteret() {
+        return montant * tauxInteret * duree;
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("PretImmobilier{%s, duree=%d, interet=%.1f}", 
+            super.toString(), duree, calculerInteret());
+    }
+}
+
+// Student loan class
+class PretEtudiant extends Pret {
+    private boolean differe;
+    
+    public PretEtudiant(String id, double montant, double tauxInteret, boolean differe) {
+        super(id, montant, tauxInteret);
+        this.differe = differe;
+    }
+    
+    @Override
+    public double calculerInteret() {
+        if (differe) {
+            return montant * tauxInteret;
+        }
+        return montant * tauxInteret * 5; // 5 years if not deferred
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("PretEtudiant{%s, differé=%b, interet=%.1f}", 
+            super.toString(), differe, calculerInteret());
+    }
+}
+
+// Personal loan class
+class PretPersonnel extends Pret {
+    private String motif;
+    
+    public PretPersonnel(String id, double montant, double tauxInteret, String motif) {
+        super(id, montant, tauxInteret);
+        this.motif = motif;
+    }
+    
+    @Override
+    public double calculerInteret() {
+        return montant * tauxInteret * 3; // Fixed 3-year duration
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("PretPersonnel{%s, motif='%s', interet=%.1f}", 
+            super.toString(), motif, calculerInteret());
+    }
+}
+
+// Main class for testing
+public class Main {
+    public static void main(String[] args) {
+        // Create a loan manager for all types of loans
+        GestionnaireDePrets<Pret> gestionnaire = new GestionnaireDePrets<>();
+        
+        // Create different types of loans
+        PretImmobilier pretImmo = new PretImmobilier("P001", 200000.0, 0.03, 20);
+        PretEtudiant pretEtudiant = new PretEtudiant("P002", 15000.0, 0.02, true);
+        PretPersonnel pretPerso = new PretPersonnel("P003", 5000.0, 0.05, "Voyage");
+        
+        // Add loans to the manager
+        gestionnaire.ajouterPret(pretImmo);
+        gestionnaire.ajouterPret(pretEtudiant);
+        gestionnaire.ajouterPret(pretPerso);
+        
+        // Display all loans
+        System.out.println("Liste des prêts :");
+        for (Pret pret : gestionnaire.listerPrets()) {
+            System.out.println("- " + pret);
+        }
+        
+        // Display total number of loans
+        System.out.println("\nNombre total de prêts : " + gestionnaire.compterPrets());
+        
+        // Remove and display the first loan
+        Pret pretRetire = gestionnaire.retirerPret();
+        System.out.println("\nRetrait du prêt : " + pretRetire);
+        
+        // Display updated list
+        System.out.println("\nListe mise à jour :");
+        for (Pret pret : gestionnaire.listerPrets()) {
+            System.out.println("- " + pret);
+        }
+    }
+}
