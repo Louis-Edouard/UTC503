@@ -1,0 +1,60 @@
+package rpg.dao;
+
+import rpg.core.Character;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Implémentation de DAO pour gérer les personnages.
+ */
+public class CharacterDAO implements DAO<Character> {
+    // Utilisation d'une Map pour simuler une base de données
+    private Map<String, Character> characters;
+    
+    public CharacterDAO() {
+        this.characters = new HashMap<>();
+    }
+    
+    @Override
+    public boolean save(Character character) {
+        if (character == null || character.getName() == null) {
+            return false;
+        }
+        characters.put(character.getName(), character);
+        return true;
+    }
+    
+    @Override
+    public Character findByName(String name) {
+        return characters.get(name);
+    }
+    
+    @Override
+    public List<Character> findAll() {
+        return new ArrayList<>(characters.values());
+    }
+    
+    /**
+     * Supprime un personnage de la base de données.
+     * @param name Le nom du personnage à supprimer.
+     * @return true si la suppression a réussi, false sinon.
+     */
+    public boolean delete(String name) {
+        if (characters.containsKey(name)) {
+            characters.remove(name);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Vérifie si un personnage existe déjà.
+     * @param name Le nom du personnage à vérifier.
+     * @return true si le personnage existe, false sinon.
+     */
+    public boolean exists(String name) {
+        return characters.containsKey(name);
+    }
+}
